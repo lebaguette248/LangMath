@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "LangMath",
+	"name": "LangMath",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Use plain text language to write mathematical expressions in Obsidian.",
+	"author": "Nicky Lopez",
+	"authorUrl": "https://github.com/lebaguette248",
 	"isDesktopOnly": false
 }

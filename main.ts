@@ -4,10 +4,13 @@ import {GoogleGenAI} from "@google/genai";
 
 interface MyPluginSettings {
 	mySetting: string;
+	myApiKey: string | undefined;
+
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+	mySetting: 'default',
+	myApiKey: 'AIzaSyA6CZvGOGzR_cB2TonXvToHFN-vSHCMt3w'
 }
 
 export default class MyPlugin extends Plugin {
@@ -60,8 +63,10 @@ export default class MyPlugin extends Plugin {
 					return;
 				}
 				console.log(editor.getSelection());
+				console.log("66: " + this.settings.myApiKey);
+				console.log("Balls" + this.plugin.settings.myApiKey);
 				const Ai = new UseAi();
-				const response = Ai.getAiResponse(selectedText);
+				const response = Ai.getAiResponse(selectedText, this.settings.myApiKey?.toString());
 
 				if (!response) {
 					new Notice('Failed to get response from AI.');
@@ -73,7 +78,6 @@ export default class MyPlugin extends Plugin {
 					});
 				}
 			}
-
 		})
 
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -167,19 +171,23 @@ class SampleSettingTab extends PluginSettingTab {
 			.setDesc('Enter your Google GenAI API Key')
 			.addText(text => text
 				.setPlaceholder('API Key')
-				.setValue(this.plugin.settings.mySetting)
+				.setValue(this.plugin.settings.myApiKey ?? '')
 				.onChange(async (value) => {
 					this.plugin.settings.mySetting = value;
+					console.log(`the new Registered API Key is: ${this.plugin.settings.mySetting} with ${typeof this.plugin.settings.mySetting}`);
 					await this.plugin.saveSettings();
 				}));
 	}
 }
 
 export class UseAi {
-	private ApiKey: string = "AIzaSyBLmRx31I-7xpzSwOUJDWcB-n49trX58Ew";
-	private ai: GoogleGenAI = new GoogleGenAI({apiKey: this.ApiKey});
+	private apiKeyLegacy: string = "AIzaSyA6CZvGOGzR_cB2TonXvToHFN-vSHCMt3w";
 
-	public async getAiResponse(query: string): Promise<string | undefined> {
+
+
+	public async getAiResponse(query: string, ApiKey?: string): Promise<string | undefined> {
+		console.log(`The API Key is: ${ApiKey} with type ${typeof ApiKey}`);
+		const ai: GoogleGenAI = new GoogleGenAI({apiKey: ApiKey});
 		const prompt: string = `
 		Hello Gemini, you are a Math AI. 
 		Write the following query in LaTeX Format. 
@@ -194,7 +202,7 @@ export class UseAi {
 		Thank you.
 		The query is: ${query}`;
 
-		const response = await this.ai.models.generateContent({
+		const response = await ai.models.generateContent({
 			model: "gemini-2.0-flash", contents: prompt,
 		});
 		console.log(`The response from gemeni is:  ${response.text}`);
