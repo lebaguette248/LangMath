@@ -1,16 +1,14 @@
 import {App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting} from 'obsidian';
 import {GoogleGenAI} from "@google/genai";
 
-
 interface MyPluginSettings {
 	mySetting: string;
 	myApiKey: string | undefined;
-
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
 	mySetting: 'default',
-	myApiKey: 'AIzaSyA6CZvGOGzR_cB2TonXvToHFN-vSHCMt3w'
+	myApiKey: ''
 }
 
 export default class MyPlugin extends Plugin {
@@ -48,7 +46,6 @@ export default class MyPlugin extends Plugin {
 						new SampleModal(this.app).open();
 					}
 
-
 					// This command will only show up in Command Palette when the check function returns true
 					return true;
 				}
@@ -63,10 +60,9 @@ export default class MyPlugin extends Plugin {
 					return;
 				}
 				console.log(editor.getSelection());
-				console.log("66: " + this.settings.myApiKey);
-				console.log("Balls" + this.plugin.settings.myApiKey);
 				const Ai = new UseAi();
 				const response = Ai.getAiResponse(selectedText, this.settings.myApiKey?.toString());
+
 
 				if (!response) {
 					new Notice('Failed to get response from AI.');
@@ -112,7 +108,7 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new LangMathSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -153,7 +149,7 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class LangMathSettingTab extends PluginSettingTab {
 	plugin: MyPlugin;
 
 	constructor(app: App, plugin: MyPlugin) {
@@ -173,20 +169,22 @@ class SampleSettingTab extends PluginSettingTab {
 				.setPlaceholder('API Key')
 				.setValue(this.plugin.settings.myApiKey ?? '')
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					console.log(`the new Registered API Key is: ${this.plugin.settings.mySetting} with ${typeof this.plugin.settings.mySetting}`);
+					this.plugin.settings.myApiKey = value;
+					console.log(`the new Registered API Key is: ${this.plugin.settings.myApiKey}`);
+					 console.log(`with ${typeof this.plugin.settings.myApiKey}`);
 					await this.plugin.saveSettings();
 				}));
 	}
 }
 
+
 export class UseAi {
-	private apiKeyLegacy: string = "AIzaSyA6CZvGOGzR_cB2TonXvToHFN-vSHCMt3w";
-
-
-
 	public async getAiResponse(query: string, ApiKey?: string): Promise<string | undefined> {
 		console.log(`The API Key is: ${ApiKey} with type ${typeof ApiKey}`);
+		if (!ApiKey) {
+			console.error("No api key assigned. Please assign one in the settings.");
+			return "Error: No API key assigned. Please assign one in the settings.";
+		}
 		const ai: GoogleGenAI = new GoogleGenAI({apiKey: ApiKey});
 		const prompt: string = `
 		Hello Gemini, you are a Math AI. 
