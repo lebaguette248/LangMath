@@ -1,4 +1,4 @@
-# LangMath
+# LangMath 
 
 This is LangMath, a Obsidian Plugin that harnesses AI to transform spoken math to the LaTeX Format.
 
