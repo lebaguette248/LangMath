@@ -9,6 +9,13 @@ This is LangMath, a Obsidian Plugin that harnesses AI to transform spoken math t
 ## Make LangMath
 The Make LangMath Command that you can use by using the commands menu (`ctrl + p`) converts highlighted written math into LaTeX. 
 
+
+
+
+
+
+# Obsidian Plugin Advice
+
 ## Adding your plugin to the community plugin list
 
 - Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
