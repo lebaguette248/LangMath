@@ -74,7 +74,31 @@ export default class MyPlugin extends Plugin {
 					});
 				}
 			}
-		})
+		});
+		this.addCommand({
+			id: 'makeLangmath-ollama',
+			name: 'Make LangMath (Ollama Llama3.1:8b)',
+			editorCallback: (editor: Editor, view: MarkdownView): void => {
+				const selectedText: string = editor.getSelection();
+				if (!selectedText) {
+					new Notice('Please select some text to convert to LangMath.');
+					return;
+				}
+				console.log(editor.getSelection());
+				const Ai = new UseAi();
+				const response = Ai.getOllamaResponse(selectedText);
+
+				if (!response) {
+					new Notice('Failed to get response from Ollama AI.');
+					console.log(response)
+					return;
+				} else {
+					response.then((result) => {
+						editor.replaceSelection(result ?? '');
+					});
+				}
+			}
+		});
 
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
@@ -171,7 +195,7 @@ class LangMathSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.myApiKey = value;
 					console.log(`the new Registered API Key is: ${this.plugin.settings.myApiKey}`);
-					 console.log(`with ${typeof this.plugin.settings.myApiKey}`);
+					console.log(`with ${typeof this.plugin.settings.myApiKey}`);
 					await this.plugin.saveSettings();
 				}));
 	}
@@ -206,5 +230,51 @@ export class UseAi {
 		console.log(`The response from gemeni is:  ${response.text}`);
 		return response.text?.toString();
 	}
+
+	/**
+	 * Returns a Promise that resolves to the formatted Math response from a local Ollama Llama3.1:8b model.
+	 * Ollama must be running locally at http://localhost:11434.
+	 */
+	public async getOllamaResponse(query: string): Promise<string | undefined> {
+		const prompt = `
+			You are a Math AI. 
+			Write the following query in LaTeX Format.
+			Only respond with Obsidian math code block syntax, like:
+			$$
+			math
+			$$
+			Respond with only the LaTeX, no explanation or extra text.
+			If the user asks for a formula, provide only that formula.
+			Query: ${query}`;
+
+		try {
+			const response = await fetch('http://localhost:11434/api/generate', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					model: 'llama3.1:8b',
+					prompt: prompt,
+					options: {temperature: 0.2, top_p: 0.95},
+					stream: false
+				})
+			});
+			if (!response.ok) {
+				console.error('Ollama API error:', response.statusText);
+				return `Error: Ollama API error - ${response.statusText}`;
+			}
+			const data = await response.json();
+			// Ollama's response has a `.response` field with the generated text
+			let answer: string = data.response?.toString() ?? '';
+			// Remove any leading/trailing whitespace or extra newlines
+			answer = answer.trim();
+			return answer;
+		} catch (error) {
+			console.error('Failed to connect to Ollama:', error);
+			return 'Error: Could not connect to local Ollama instance.';
+		}
+	}
 }
+
 
