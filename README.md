@@ -1,10 +1,16 @@
 # LangMath
 
-This is LangMath, a Obsidian Plugin that harnesses AI to transform spoken math to the LaTeX Format.
+This is LangMath, a Obsidian Plugin that harnesses AI to transform written math to the LaTeX Format.
 
 # How to Install
 - Clone this Repository into your ./<your_obsidian_repo>/.obsidian/plugins/ folder.
 - Go to your settings tab
+- Enter a API Key for google GEMINI
+
+## Localhost Setup
+LangMath supports the use of a local LLM via OLLAMA. To use a local LLM, you need to have OLLAMA installed and running on your machine.
+1. Install OLLAMA from https://ollama.com/
+2. Download the model ollama3.1:8b
 
 ## Make LangMath
 The Make LangMath Command that you can use by using the commands menu (`ctrl + p`) converts highlighted written math into LaTeX. 
