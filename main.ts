@@ -4,11 +4,13 @@ import {GoogleGenAI} from "@google/genai";
 interface MyPluginSettings {
 	mySetting: string;
 	myApiKey: string | undefined;
+	myCustomModel: string | undefined;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
 	mySetting: 'default',
-	myApiKey: ''
+	myApiKey: '',
+	myCustomModel: ''
 }
 
 export default class MyPlugin extends Plugin {
@@ -86,7 +88,7 @@ export default class MyPlugin extends Plugin {
 				}
 				console.log(editor.getSelection());
 				const Ai = new UseAi();
-				const response = Ai.getOllamaResponse(selectedText);
+				const response = Ai.getOllamaResponse(selectedText, this.settings.myCustomModel?.toString());
 
 				if (!response) {
 					new Notice('Failed to get response from Ollama AI.');
@@ -235,7 +237,11 @@ export class UseAi {
 	 * Returns a Promise that resolves to the formatted Math response from a local Ollama Llama3.1:8b model.
 	 * Ollama must be running locally at http://localhost:11434.
 	 */
-	public async getOllamaResponse(query: string): Promise<string | undefined> {
+	public async getOllamaResponse(query: string, usedModel: string | undefined): Promise<string | undefined> {
+		if(!usedModel){
+			usedModel = 'llama3.1:8b';
+		}
+
 		const prompt = `
 			You are a Math AI. 
 			Write the following query in LaTeX Format.
@@ -254,7 +260,7 @@ export class UseAi {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					model: 'llama3.1:8b',
+					model: usedModel,
 					prompt: prompt,
 					options: {temperature: 0.2, top_p: 0.95},
 					stream: false
