@@ -19,10 +19,29 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'LangMathOllama', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('calculator', 'LangMathOllama', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			new Notice('Converting to LaTeX..');
+			editorCallback: (editor: Editor, view: MarkdownView): void => {
+				const selectedText: string = editor.getSelection();
+				if (!selectedText) {
+					new Notice('Please select some text to convert to LangMath.');
+					return;
+				}
+				console.log(editor.getSelection());
+				const Ai = new UseAi();
+				const response = Ai.getOllamaResponse(selectedText, this.settings.myCustomModel?.toString());
 
+				if (!response) {
+					new Notice('Failed to get response from Ollama AI.');
+					console.log(response)
+					return;
+				} else {
+					response.then((result) => {
+						editor.replaceSelection(result ?? '');
+					});
+				}
+			}
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -175,7 +194,7 @@ class LangMathSettingTab extends PluginSettingTab {
 			.setDesc('Enter the exact type of model, for example llama3.1:8b')
 			.addText(text => text
 				.setPlaceholder('llama3.1:8b')
-				.setValue(this.plugin.settings.myCustomModel?? '')
+				.setValue(this.plugin.settings.myCustomModel ?? '')
 				.onChange(async (value) => {
 					this.plugin.settings.myCustomModel = value;
 					await this.plugin.saveSettings();
@@ -218,7 +237,7 @@ export class UseAi {
 	 * Ollama must be running locally at http://localhost:11434.
 	 */
 	public async getOllamaResponse(query: string, usedModel: string | undefined): Promise<string | undefined> {
-		if(!usedModel){
+		if (!usedModel) {
 			usedModel = 'llama3.1:8b';
 		}
 
