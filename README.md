@@ -10,7 +10,9 @@ This is LangMath, a Obsidian Plugin that harnesses AI to transform written math 
 ## Localhost Setup
 LangMath supports the use of a local LLM via OLLAMA. To use a local LLM, you need to have OLLAMA installed and running on your machine.
 1. Install OLLAMA from https://ollama.com/
-2. Download the model ollama3.1:8b
+2. In your console, use the command `ollama serve`. Ollama should be running now.
+3. Depending on personal Ollama settings, you will need to install the according LLM. Langmath uses `llama3.1:8b`
+4. You can set your own prefered model in the Langmath settings. 
 
 ## Make LangMath
 The Make LangMath Command that you can use by using the commands menu (`ctrl + p`) converts highlighted written math into LaTeX. 
